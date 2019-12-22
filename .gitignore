@@ -1,0 +1,5 @@
+# IDE and editor config
+.idea/
+.vscode/
+*.code-workspace
+*.iml
