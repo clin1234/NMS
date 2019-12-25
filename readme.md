@@ -1,3 +1,5 @@
+Insert image here:
+![Image]("Insert logo here")
 # NMS (ein neues Minensuchspiel)
 
 NMS is (currently) a minesweeper clone written in Java. The GUI uses the Swing API at the moment.
@@ -6,6 +8,7 @@ NMS is (currently) a minesweeper clone written in Java. The GUI uses the Swing A
 
 * Console interface virtually functional.
 * GUI is a work in progress.
+* Need artist to draw logo. Logo must be vectored, but you may send images in other formats (such as for desktop icons). Please license subissions under open licenses compatible with the GPL. Email me at <charlielin65@gmail.com>.
 
 ## Building
 
