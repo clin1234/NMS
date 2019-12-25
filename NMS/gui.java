@@ -109,6 +109,7 @@ class CellPane extends JPanel {
      */
     private static final long serialVersionUID = 1L;
     private Color defaultBackground;
+    private String bomb_symbol = "\u1f483";
 
     public CellPane() {
         addMouseListener(new MouseAdapter() {

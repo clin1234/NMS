@@ -8,49 +8,37 @@ import jdk.jfr.Unsigned;
 
 public class game {
     @Unsigned
-    private short mines;
+    private int mines;
     @Unsigned
     private int r;
     @Unsigned
     private int c;
     Cell[][] grid;
 
-    static final String version = "0.01";
+    static final String version = "Version 0.02";
 
     boolean game_in_progress, random_generated;
 
     final short[] dir = { -1, 0, 1 };
 
-    private short place_mines(int mines) {
-        if (mines < grid.length / 2) {
-            err.println("Too few mines. Try again");
-            return 12;
-        }
-
-        /*
-         * XXX: pseudo-random placement. All mines are split as equally as possible
-         * between each row, and then placed randomly within each one.
-         */
-
+    private void place_mines(int mines) {
         while (mines > 0) {
             final int row_i = ThreadLocalRandom.current().nextInt(r), col_i = ThreadLocalRandom.current().nextInt(c);
             final int correc = ThreadLocalRandom.current().nextInt(-1, 2);
             if (grid[row_i][col_i].isMined()) {
-                if (row_i + correc >= 0 && col_i + correc >= 0 && row_i + correc < r && col_i + correc < c)
+                if (check_coord(row_i + correc, col_i + correc))
                     grid[row_i + correc][col_i + correc].setMined(true);
             } else
                 grid[row_i][col_i].setMined(true);
             mines--;
         }
 
-        
-
         for (short i = 0; i < r; i++) {
             for (short j = 0; j < c; j++) {
                 if (grid[i][j].isMined()) {
                     for (short d : dir) {
                         for (short c : dir) {
-                            if (check_coord(i+d, j+c)) {
+                            if (check_coord(i + d, j + c)) {
                                 if (grid[i + d][j + c].isMined())
                                     ;
                                 else
@@ -61,8 +49,6 @@ public class game {
                 }
             }
         }
-
-        return 0;
     }
 
     public game(final int rows, final int columns, final int mines) {
@@ -73,6 +59,7 @@ public class game {
             for (int j = 0; j < columns; j++)
                 grid[i][j] = new Cell();
         }
+        this.mines = mines;
         place_mines(mines);
 
         for (short i = 0; i < rows; i++) {
@@ -84,13 +71,19 @@ public class game {
 
     public String toString() {
         String grid_out = "";
-        for (short i = 0; i < r; i++) {
-            for (short j = 0; j < c; j++) {
+        for (short i = 0; i < r; i++)
+            grid_out += String.format("%-3d", i);
+        grid_out += System.lineSeparator();
+        short i, j;
+        for (j = 0; j < c; j++) {
+            for (i = 0; i < r; i++) {
                 if (game_in_progress == true) {
+
                     if (grid[i][j].isCovered()) {
-                        grid_out += "*";
-                    } else if (grid[i][j].isFlagged()) {
-                        grid_out += "f";
+                        if (grid[i][j].isFlagged())
+                            grid_out += "f";
+                        else
+                            grid_out += "*";
                     } else if (grid[i][j].num_neighboring_mines == 0)
                         grid_out += ".";
                     else
@@ -104,9 +97,9 @@ public class game {
                         grid_out += grid[i][j].num_neighboring_mines;
 
                 }
-                grid_out += " ";
+                grid_out += "  ";
             }
-            grid_out += System.lineSeparator();
+            grid_out += j + System.lineSeparator();
         }
         return grid_out;
     }
@@ -115,19 +108,36 @@ public class game {
         return (row >= 0 && col >= 0 && row < r && col < c);
     }
 
-    boolean uncover(int row, int col)
-    {
+    // XXX: unelegant uncovering algorithm.
+    boolean isuncovering_success(int row, int col) {
         grid[row][col].setCovered(false);
-        for(short i:dir)
-        {
-            for(short j:dir)
-            {
-                if(check_coord(row+i, col+j))
-                {
-                    
+        if (grid[row][col].isMined())
+            return false;
+        else {
+            for (short i : dir) {
+                for (short j : dir) {
+                    if (check_coord(row + i, col + j) && (grid[row + i][col + j].isMined() == false)
+                            && (grid[row + i][col + j].num_neighboring_mines == 0)) {
+                        grid[row + i][col + j].setCovered(false);
+                    }
                 }
             }
         }
+        return true;
+    }
+
+    boolean allmines_revealed() {
+        short c = 0;
+        for (Cell[] co : grid) {
+            for (Cell d : co) {
+                if (d.isCovered() == false) {
+                    c++;
+                }
+            }
+        }
+        if (c == (grid.length * grid[0].length) - mines)
+            return true;
+        return false;
     }
 }
 

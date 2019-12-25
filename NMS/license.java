@@ -43,7 +43,7 @@ class info
 public class license {
     public static void main(final String[] a) {
         EventQueue.invokeLater(() -> {
-            final var frame = new frame();
+            final frame frame = new frame();
             // frame.setLayout(new BoxLayout());
             frame.setTitle("License");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
